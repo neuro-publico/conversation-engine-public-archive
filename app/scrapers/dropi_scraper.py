@@ -1,10 +1,11 @@
 import re
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
+from urllib.parse import quote
 
 from fastapi import HTTPException
 
-from app.configurations.config import DROPI_S3_BASE_URL
+from app.configurations.config import get_dropi_s3_base_url
 from app.externals.dropi.dropi_client import get_product_details
 from app.scrapers.helper_price import parse_price
 from app.scrapers.scraper_interface import ScraperInterface
@@ -13,6 +14,11 @@ from app.scrapers.scraper_interface import ScraperInterface
 class DropiScraper(ScraperInterface):
     def __init__(self, country: str = "co"):
         self.country = country
+        self.s3_base_url = get_dropi_s3_base_url(country)
+
+    def _build_image_url(self, url_s3: str) -> str:
+        """Construye la URL absoluta de la imagen con el CloudFront del país y encoding seguro."""
+        return self.s3_base_url + quote(url_s3, safe="/")
 
     async def scrape_direct(self, html: str) -> Dict[str, Any]:
         return {}
@@ -80,7 +86,7 @@ class DropiScraper(ScraperInterface):
         images = []
         for item in photos:
             if item.get("urlS3"):
-                images.append(DROPI_S3_BASE_URL + item["urlS3"])
+                images.append(self._build_image_url(item["urlS3"]))
         return images
 
     def _extract_variants(self, product_data: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -224,12 +230,12 @@ class DropiScraper(ScraperInterface):
 
         for photo in product_photos:
             if photo.get("variation_id") == variation_id and photo.get("urlS3"):
-                images.append(DROPI_S3_BASE_URL + photo["urlS3"])
+                images.append(self._build_image_url(photo["urlS3"]))
 
         if not images:
             for photo in product_photos:
                 if not photo.get("variation_id") and photo.get("urlS3"):
-                    images.append(DROPI_S3_BASE_URL + photo["urlS3"])
+                    images.append(self._build_image_url(photo["urlS3"]))
 
         return images
 
