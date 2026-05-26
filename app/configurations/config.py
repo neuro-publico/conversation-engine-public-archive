@@ -35,6 +35,18 @@ ENVIRONMENT: str = os.getenv("ENVIRONMENT")
 OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY")
 
 DROPI_S3_BASE_URL: str = os.getenv("DROPI_S3_BASE_URL", "https://d39ru7awumhhs2.cloudfront.net/")
+# CloudFront por país cuando difiere del default. Dropi usa distribuciones diferentes por país.
+DROPI_S3_BASE_URL_GT: str = os.getenv("DROPI_S3_BASE_URL_GT", "https://d2ob47cxeawi8a.cloudfront.net/")
+
+
+def get_dropi_s3_base_url(country: str = "co") -> str:
+    """Devuelve la URL base de CloudFront para las imágenes de productos de Dropi por país."""
+    c = (country or "co").lower()
+    if c == "gt":
+        return DROPI_S3_BASE_URL_GT
+    return DROPI_S3_BASE_URL
+
+
 DROPI_HOST: str = (os.getenv("DROPI_HOST") or "https://test-api.dropi.co").rstrip("/")
 # URL base de la API por país cuando difiere del patrón. Paraguay prod: api.dropi.com.py (test: test-api.dropi.com.py). app.dropi.com.py es frontend (HTML).
 DROPI_HOST_PY: str = (os.getenv("DROPI_HOST_PY") or "https://api.dropi.com.py").rstrip("/")
