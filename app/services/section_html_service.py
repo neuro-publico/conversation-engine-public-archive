@@ -42,9 +42,7 @@ from app.services.sub_image_service import (
     SUB_IMAGE_MAX_RETRIES,
 )
 from app.services.sub_image_service import SUB_IMAGE_MODEL as _SIM
-from app.services.sub_image_service import (
-    SUB_IMAGE_RETRY_DELAY_SECONDS,
-)
+from app.services.sub_image_service import SUB_IMAGE_RETRY_DELAY_SECONDS
 
 logger = logging.getLogger(__name__)
 
